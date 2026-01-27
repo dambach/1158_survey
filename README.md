@@ -21,118 +21,158 @@ chmod +x build-app.sh
 ### 3. Lancer
 Double-cliquez sur `LimeSurvey.app` (a la racine du projet).
 
-## Utilisation (Application menubar)
+---
 
-L'icone **LS** apparait dans la barre de menu (en haut a droite).
+## Workflow complet
+
+### Etape 1: Lancer l'application
+
+1. **Ouvrir Docker Desktop** (icone baleine dans la barre de menu)
+2. **Double-cliquer sur `LimeSurvey.app`** (a la racine du projet)
+3. L'icone **LS** apparait dans la barre de menu (en haut a droite)
+
+### Etape 2: Demarrer le serveur
+
+1. Cliquer sur **LS** dans la barre de menu
+2. Cliquer sur **Demarrer**
+3. Attendre la notification "Serveur demarre!"
+4. Le navigateur s'ouvre automatiquement sur l'admin
+
+### Etape 3: Creer un questionnaire
+
+1. **Se connecter** a l'admin:
+   - Utilisateur: `admin`
+   - Mot de passe: `admin123`
+
+2. **Creer un questionnaire:**
+   - Cliquer sur "+ Creer un questionnaire"
+   - Remplir le titre et la description
+   - Cliquer sur "Enregistrer"
+
+3. **Ajouter des questions:**
+   - Cliquer sur "Ajouter un groupe de questions"
+   - Cliquer sur "Ajouter une question"
+   - Choisir le type (choix multiple, texte, echelle, etc.)
+
+4. **Activer le questionnaire:**
+   - Cliquer sur "Activer ce questionnaire"
+   - Choisir "Reponses anonymes" si souhaite
+   - Confirmer l'activation
+
+### Etape 4: Recuperer l'URL pour les tablettes
+
+1. Dans l'admin, aller dans **Parametres** > **Vue d'ensemble**
+2. Copier l'**URL du questionnaire** (ex: `http://localhost:8081/index.php/123456?lang=fr`)
+3. **Remplacer `localhost` par l'IP du Mac** pour les tablettes:
+   - Trouver l'IP: **LS** > **Diagnostics** (ou `ipconfig getifaddr en0`)
+   - URL tablettes: `http://192.168.1.XX:8081/index.php/123456?lang=fr`
+
+4. **Desactiver le pare-feu** (une seule fois):
+   ```bash
+   sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
+   ```
+
+### Etape 5: Pendant la session
+
+- Les participants remplissent le questionnaire sur tablettes
+- **Les reponses sont sauvegardees automatiquement** dans LimeSurvey
+- Verifier les reponses: Admin > Reponses > Reponses et statistiques
+
+### Etape 6: Apres la session
+
+| Action | Comment |
+|--------|---------|
+| **Exporter les reponses** | **LS** > **Exporter CSV** |
+| **Sauvegarder tout** | **LS** > **Sauvegarder** |
+| **Arreter** | **LS** > **Arreter** (sauvegarde auto incluse) |
+
+Les fichiers sont dans:
+- `./exports/` - Fichiers CSV des reponses
+- `./backups/` - Sauvegardes completes
+
+---
+
+## Menus de l'application
 
 | Menu | Action |
 |------|--------|
 | Demarrer | Lance le serveur + ouvre l'admin |
 | Ouvrir navigateur | Acces a LimeSurvey |
-| Exporter CSV | Exporte les reponses |
-| Sauvegarder | Backup complet |
-| Diagnostics | Verifie le systeme |
+| Exporter CSV | Exporte les reponses -> ./exports/ |
+| Sauvegarder | Backup complet -> ./backups/ |
+| Diagnostics | Verifie le systeme + affiche l'IP |
 | Arreter | **Sauvegarde auto** + arrete le serveur |
 
 > **Note:** "Arreter" effectue automatiquement une sauvegarde et un export CSV.
+
+---
+
+## Acces
+
+| Type | URL |
+|------|-----|
+| Admin (Mac) | http://localhost:8081/admin |
+| Questionnaire (Mac) | http://localhost:8081/index.php/[ID]?lang=fr |
+| Questionnaire (tablettes) | http://[IP_MAC]:8081/index.php/[ID]?lang=fr |
+| Login admin | `admin` / `admin123` |
+
+---
 
 ## Alternative: Scripts Terminal
 
 ```bash
 ./scripts/start-limesurvey.sh
-```
-
-**Acces:**
-- Local: http://localhost:8081
-- Admin: http://localhost:8081/index.php/admin
-- Login: `admin` / `admin123`
-
-## Acces tablettes
-
-1. Desactiver le pare-feu macOS:
-   ```bash
-   sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
-   ```
-
-2. Trouver l'IP du Mac:
-   ```bash
-   ipconfig getifaddr en0
-   ```
-
-3. URL (telephones, tablettes): `http://[IP]:8081/index.php/[ID]?lang=fr`
-(Adresse disponible dans l'admin LimeSurvey)
-
-## Scripts (Terminal)
-
-| Script | Description |
-|--------|-------------|
-| `start-limesurvey.sh` | Demarre LimeSurvey |
-| `start-limesurvey.sh --fresh` | Reinitialise tout |
-| `stop-limesurvey.sh` | Arrete les services |
-| `backup-data.sh` | Sauvegarde -> ./backups/ |
-| `export-csv.sh` | Export CSV -> ./exports/ |
-| `restore-data.sh <fichier>` | Restaure une sauvegarde |
-| `test-system.sh` | Diagnostic complet |
-| `test-questionnaire.sh <ID>` | Teste un questionnaire |
-| `install-desktop.sh` | Installe raccourcis Bureau |
-
-## Workflow
-
-```bash
-# Avant session
-./scripts/start-limesurvey.sh
-
-# Apres session
 ./scripts/export-csv.sh
 ./scripts/backup-data.sh
 ./scripts/stop-limesurvey.sh
 ```
 
-## Creer un questionnaire
+| Script | Description |
+|--------|-------------|
+| `start-limesurvey.sh` | Demarre LimeSurvey |
+| `start-limesurvey.sh --fresh` | Reinitialise tout (⚠️ efface les donnees) |
+| `stop-limesurvey.sh` | Arrete les services |
+| `backup-data.sh` | Sauvegarde -> ./backups/ |
+| `export-csv.sh` | Export CSV -> ./exports/ |
+| `restore-data.sh <fichier>` | Restaure une sauvegarde |
+| `test-system.sh` | Diagnostic complet |
 
-1. Aller dans l'admin: http://localhost:8081/index.php/admin
-2. Creer un questionnaire
-3. Configurer les questions
-4. Activer le questionnaire (mode "Anyone with link")
-5. Noter l'URL: `http://localhost:8081/index.php/[ID]?lang=fr`
+---
 
 ## Depannage
 
 | Probleme | Solution |
 |----------|----------|
-| Tablettes n'accedent pas | Desactiver pare-feu macOS |
+| Tablettes n'accedent pas | Desactiver pare-feu macOS (voir Etape 4) |
 | Serveur inaccessible | `docker restart limesurvey` |
-| Reset complet | `./scripts/start-limesurvey.sh --fresh` |
+| Docker ne demarre pas | Ouvrir Docker Desktop manuellement |
+| Reset complet | `./scripts/start-limesurvey.sh --fresh` (⚠️ efface tout) |
 
-## Persistance
+## Persistance des donnees
 
-Les donnees sont stockees dans des volumes Docker:
-- `limesurvey-mysql-data` (base de donnees)
-- `limesurvey-upload-data` (fichiers)
+Les donnees sont stockees dans des volumes Docker et **survivent aux redemarrages**:
+- `limesurvey-mysql-data` - Base de donnees (reponses, questionnaires)
+- `limesurvey-upload-data` - Fichiers uploades
 
-Elles survivent aux redemarrages.
+**Recommandation:** Faire un backup regulier via **LS** > **Sauvegarder**.
 
-## Structure
+## Structure du projet
 
 ```
+LimeSurvey.app          # Application (generee par build-app.sh)
 app/
-  limesurvey_app.py     # Application menubar
+  limesurvey_app.py     # Code source de l'app
   build-app.sh          # Script de compilation
-scripts/
-  start-limesurvey.sh   # Demarrage
-  stop-limesurvey.sh    # Arret
-  backup-data.sh        # Sauvegarde
-  restore-data.sh       # Restauration
-  export-csv.sh         # Export reponses
-  test-system.sh        # Diagnostic
-Limesurvey_logo.svg     # Logo
-README.md
+  icon.icns             # Icone
+scripts/                # Scripts shell
+backups/                # Sauvegardes (gitignore)
+exports/                # Exports CSV (gitignore)
 ```
 
 ## Ressources
 
-- [LimeSurvey Docker](https://hub.docker.com/r/martialblog/limesurvey)
 - [Documentation LimeSurvey](https://manual.limesurvey.org/)
+- [LimeSurvey Docker](https://hub.docker.com/r/martialblog/limesurvey)
 
 ---
-v1.1
+v1.2
