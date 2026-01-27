@@ -2,6 +2,9 @@
 
 Questionnaires sur tablettes en laboratoire avec hebergement local.
 
+## TODO
+- [ ] screenshots
+
 ## Installation (nouveau Mac)
 
 ### 1. Prerequis
