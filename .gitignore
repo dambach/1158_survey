@@ -1,0 +1,54 @@
+# macOS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+
+# Backups et exports (donnees locales)
+backups/
+exports/
+*.tar.gz
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+tmp/
+temp/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+.eggs/
+venv/
+.venv/
+
+# PyInstaller (build artifacts)
+app/build/
+app/dist/
+app/*.spec
+app/icon.iconset/
+
+# Application compilee (regenerable)
+LimeSurvey.app/
+
+# Documentation obsolete
+INSTALLATION_POC.md
+limesurvey_principe.md
+questionnaire-exemple.md
