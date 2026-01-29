@@ -54,13 +54,17 @@ Double-cliquez sur `LimeSurvey.exe` (a la racine du projet).
 
 ### Etape 1: Lancer l'application
 
-1. **Ouvrir Docker Desktop** (icone baleine dans la barre de menu)
-2. **Double-cliquer sur `LimeSurvey.app`** (a la racine du projet)
-3. L'icone **LS** apparait dans la barre de menu (en haut a droite)
+1. **Ouvrir Docker Desktop** (icone baleine)
+2. **Double-cliquer sur l'application:**
+   - **macOS:** `LimeSurvey.app`
+   - **Windows:** `LimeSurvey.exe`
+3. L'icone **LS** apparait:
+   - **macOS:** dans la barre de menu (en haut a droite)
+   - **Windows:** dans la zone de notification (en bas a droite)
 
 ### Etape 2: Demarrer le serveur
 
-1. Cliquer sur **LS** dans la barre de menu
+1. Cliquer sur l'icone **LS** (barre de menu macOS / zone de notification Windows)
 2. Cliquer sur **Demarrer**
 3. Attendre la notification "Serveur demarre!"
 4. Le navigateur s'ouvre automatiquement sur l'admin
@@ -90,14 +94,23 @@ Double-cliquez sur `LimeSurvey.exe` (a la racine du projet).
 
 1. Dans l'admin, aller dans **Parametres** > **Vue d'ensemble**
 2. Copier l'**URL du questionnaire** (ex: `http://localhost:8081/index.php/123456?lang=fr`)
-3. **Remplacer `localhost` par l'IP du Mac** pour les tablettes:
-   - Trouver l'IP: **LS** > **Diagnostics** (ou `ipconfig getifaddr en0`)
+3. **Remplacer `localhost` par l'IP de l'ordinateur** pour les tablettes:
+   - Trouver l'IP: **LS** > **Diagnostics**
+   - Ou manuellement:
+     - **macOS:** `ipconfig getifaddr en0`
+     - **Windows:** `ipconfig` (chercher "Adresse IPv4")
    - URL tablettes: `http://192.168.1.XX:8081/index.php/123456?lang=fr`
 
 4. **Desactiver le pare-feu** (une seule fois):
-   ```bash
-   sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
-   ```
+   - **macOS:**
+     ```bash
+     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
+     ```
+   - **Windows** (en tant qu'administrateur):
+     ```cmd
+     netsh advfirewall set allprofiles state off
+     ```
+     Ou via: Panneau de configuration > Pare-feu Windows Defender > Desactiver
 
 ### Etape 5: Pendant la session
 
@@ -138,9 +151,9 @@ Les fichiers sont dans:
 
 | Type | URL |
 |------|-----|
-| Admin (Mac) | http://localhost:8081/admin |
-| Questionnaire (Mac) | http://localhost:8081/index.php/[ID]?lang=fr |
-| Questionnaire (tablettes) | http://[IP_MAC]:8081/index.php/[ID]?lang=fr |
+| Admin (local) | http://localhost:8081/admin |
+| Questionnaire (local) | http://localhost:8081/index.php/[ID]?lang=fr |
+| Questionnaire (tablettes) | http://[IP_ORDINATEUR]:8081/index.php/[ID]?lang=fr |
 | Login admin | `admin` / `admin123` |
 
 ---
