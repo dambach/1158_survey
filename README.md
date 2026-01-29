@@ -2,10 +2,14 @@
 
 Questionnaires sur tablettes en laboratoire avec hebergement local.
 
+**Compatible macOS et Windows**
+
 ## TODO
 - [ ] screenshots
 
-## Installation (nouveau Mac)
+---
+
+## Installation macOS
 
 ### 1. Prerequis
 - macOS 10.14+
@@ -23,6 +27,26 @@ chmod +x build-app.sh
 
 ### 3. Lancer
 Double-cliquez sur `LimeSurvey.app` (a la racine du projet).
+
+---
+
+## Installation Windows
+
+### 1. Prerequis
+- Windows 10/11
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (activer WSL2 lors de l'installation)
+- [Python 3.10+](https://www.python.org/downloads/) (**Cocher "Add Python to PATH"** lors de l'installation)
+
+### 2. Cloner et compiler
+```cmd
+git clone https://github.com/dambach/1158_survey.git
+cd 1158_survey\app
+pip install -r requirements.txt
+build-app.bat
+```
+
+### 3. Lancer
+Double-cliquez sur `LimeSurvey.exe` (a la racine du projet).
 
 ---
 
@@ -123,6 +147,7 @@ Les fichiers sont dans:
 
 ## Alternative: Scripts Terminal
 
+### macOS
 ```bash
 ./scripts/start-limesurvey.sh
 ./scripts/export-csv.sh
@@ -130,15 +155,23 @@ Les fichiers sont dans:
 ./scripts/stop-limesurvey.sh
 ```
 
+### Windows
+```cmd
+scripts\start-limesurvey.bat
+scripts\export-csv.bat
+scripts\backup-data.bat
+scripts\stop-limesurvey.bat
+```
+
 | Script | Description |
 |--------|-------------|
-| `start-limesurvey.sh` | Demarre LimeSurvey |
-| `start-limesurvey.sh --fresh` | Reinitialise tout (⚠️ efface les donnees) |
-| `stop-limesurvey.sh` | Arrete les services |
-| `backup-data.sh` | Sauvegarde -> ./backups/ |
-| `export-csv.sh` | Export CSV -> ./exports/ |
-| `restore-data.sh <fichier>` | Restaure une sauvegarde |
-| `test-system.sh` | Diagnostic complet |
+| `start-limesurvey` | Demarre LimeSurvey |
+| `start-limesurvey --fresh` | Reinitialise tout (⚠️ efface les donnees) |
+| `stop-limesurvey` | Arrete les services |
+| `backup-data` | Sauvegarde -> ./backups/ |
+| `export-csv` | Export CSV -> ./exports/ |
+| `restore-data <fichier>` | Restaure une sauvegarde |
+| `test-system` | Diagnostic complet |
 
 ---
 
@@ -146,10 +179,10 @@ Les fichiers sont dans:
 
 | Probleme | Solution |
 |----------|----------|
-| Tablettes n'accedent pas | Desactiver pare-feu macOS (voir Etape 4) |
+| Tablettes n'accedent pas | Desactiver pare-feu (macOS ou Windows) |
 | Serveur inaccessible | `docker restart limesurvey` |
 | Docker ne demarre pas | Ouvrir Docker Desktop manuellement |
-| Reset complet | `./scripts/start-limesurvey.sh --fresh` (⚠️ efface tout) |
+| Reset complet | `start-limesurvey --fresh` (⚠️ efface tout) |
 
 ## Persistance des donnees
 
@@ -162,12 +195,16 @@ Les donnees sont stockees dans des volumes Docker et **survivent aux redemarrage
 ## Structure du projet
 
 ```
-LimeSurvey.app          # Application (generee par build-app.sh)
+LimeSurvey.app          # Application macOS (generee par build-app.sh)
+LimeSurvey.exe          # Application Windows (generee par build-app.bat)
 app/
-  limesurvey_app.py     # Code source de l'app
-  build-app.sh          # Script de compilation
-  icon.icns             # Icone
-scripts/                # Scripts shell
+  limesurvey_app.py     # Code source cross-platform (macOS/Windows)
+  build-app.sh          # Script de compilation macOS
+  build-app.bat         # Script de compilation Windows
+  icon.icns             # Icone macOS
+  icon.ico              # Icone Windows
+  requirements.txt      # Dependances Python
+scripts/                # Scripts shell (.sh) et batch (.bat)
 backups/                # Sauvegardes (gitignore)
 exports/                # Exports CSV (gitignore)
 ```
@@ -178,4 +215,4 @@ exports/                # Exports CSV (gitignore)
 - [LimeSurvey Docker](https://hub.docker.com/r/martialblog/limesurvey)
 
 ---
-v1.2
+v1.3 - Cross-platform macOS/Windows
