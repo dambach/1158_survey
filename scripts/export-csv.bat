@@ -9,6 +9,10 @@ set EXPORT_DIR=.\exports
 for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set datetime=%%I
 set TIMESTAMP=%datetime:~0,8%_%datetime:~8,6%
 
+if "%MYSQL_DATABASE%"=="" set MYSQL_DATABASE=limesurvey
+if "%MYSQL_USER%"=="" set MYSQL_USER=limesurvey
+if "%MYSQL_PASSWORD%"=="" set MYSQL_PASSWORD=limepass
+
 if not exist "%EXPORT_DIR%" mkdir "%EXPORT_DIR%"
 
 docker ps --format "{{.Names}}" | findstr /x "limesurvey-db" >nul 2>&1
@@ -20,7 +24,7 @@ if %ERRORLEVEL% neq 0 (
 echo Export CSV des reponses...
 
 REM Recuperer la liste des tables de reponses
-for /f "tokens=*" %%t in ('docker exec limesurvey-db mysql -u limesurvey -plimepass limesurvey -N -e "SHOW TABLES LIKE 'lime_survey_%%';" 2^>nul') do (
+for /f "tokens=*" %%t in ('docker exec limesurvey-db mysql -u "%MYSQL_USER%" -p"%MYSQL_PASSWORD%" "%MYSQL_DATABASE%" -N -e "SHOW TABLES LIKE 'lime_survey_%%';" 2^>nul') do (
     set TABLE=%%t
     REM Extraire l'ID du survey (partie apres lime_survey_)
     set SURVEY_ID=!TABLE:lime_survey_=!
@@ -30,10 +34,10 @@ for /f "tokens=*" %%t in ('docker exec limesurvey-db mysql -u limesurvey -plimep
     if !ERRORLEVEL! equ 0 (
         set OUTPUT_FILE=%EXPORT_DIR%\reponses_!SURVEY_ID!_%TIMESTAMP%.csv
         
-        docker exec limesurvey-db mysql -u limesurvey -plimepass limesurvey -e "SELECT * FROM !TABLE!;" 2>nul > "!OUTPUT_FILE!.tmp"
+        docker exec limesurvey-db mysql -u "%MYSQL_USER%" -p"%MYSQL_PASSWORD%" "%MYSQL_DATABASE%" -B -e "SELECT * FROM !TABLE!;" 2>nul > "!OUTPUT_FILE!.tmp"
         
-        REM Convertir les tabulations en virgules
-        powershell -Command "(Get-Content '!OUTPUT_FILE!.tmp') -replace \"`t\", ',' | Set-Content '!OUTPUT_FILE!'"
+        REM Convertir TSV MySQL -> CSV avec echappement correct
+        python "%~dp0convert-mysql-tsv-to-csv.py" "!OUTPUT_FILE!.tmp" "!OUTPUT_FILE!"
         del "!OUTPUT_FILE!.tmp" 2>nul
         
         REM Verifier si le fichier contient des donnees

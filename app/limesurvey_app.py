@@ -141,10 +141,22 @@ class LimeSurveyAppBase:
     def do_stop(self):
         """Arreter LimeSurvey (avec sauvegarde auto)"""
         notify("LimeSurvey", "Sauvegarde + Export avant arret...")
-        self.run_script("export-csv.sh")
-        self.run_script("backup-data.sh")
-        success, output = self.run_script("stop-limesurvey.sh")
-        notify("LimeSurvey", "Serveur arrete (donnees sauvegardees)")
+        export_ok, _ = self.run_script("export-csv.sh")
+        backup_ok, _ = self.run_script("backup-data.sh")
+        stop_ok, _ = self.run_script("stop-limesurvey.sh")
+
+        if export_ok and backup_ok and stop_ok:
+            notify("LimeSurvey", "Serveur arrete (donnees sauvegardees)")
+        else:
+            errors = []
+            if not export_ok:
+                errors.append("Export CSV echoue")
+            if not backup_ok:
+                errors.append("Sauvegarde echouee")
+            if not stop_ok:
+                errors.append("Arret serveur echoue")
+            notify("LimeSurvey", "Arret termine avec erreurs")
+            show_alert("Arret LimeSurvey - erreurs", "\n".join(errors))
     
     def do_open_browser(self):
         """Ouvrir le navigateur"""

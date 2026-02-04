@@ -10,6 +10,10 @@ for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set da
 set TIMESTAMP=%datetime:~0,8%_%datetime:~8,6%
 set BACKUP_NAME=limesurvey_backup_%TIMESTAMP%
 
+if "%MYSQL_DATABASE%"=="" set MYSQL_DATABASE=limesurvey
+if "%MYSQL_USER%"=="" set MYSQL_USER=limesurvey
+if "%MYSQL_PASSWORD%"=="" set MYSQL_PASSWORD=limepass
+
 echo ==========================================
 echo Backup LimeSurvey Lab - %TIMESTAMP%
 echo ==========================================
@@ -27,7 +31,7 @@ REM Creer le dossier de backup
 if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%"
 
 echo 1/2 - Export de la base de donnees MySQL...
-docker exec limesurvey-db mysqldump -u limesurvey -plimepass limesurvey > "%BACKUP_DIR%\%BACKUP_NAME%_database.sql"
+docker exec limesurvey-db mysqldump -u "%MYSQL_USER%" -p"%MYSQL_PASSWORD%" "%MYSQL_DATABASE%" > "%BACKUP_DIR%\%BACKUP_NAME%_database.sql"
 echo     -^> %BACKUP_DIR%\%BACKUP_NAME%_database.sql
 
 echo.

@@ -49,17 +49,17 @@ fi
 echo ""
 echo "📱 Diagnostic réseau pour appareils mobiles..."
 
-# Vérifier mode hotspot (bridge0)
-IP_HOTSPOT=$(ifconfig bridge0 2>/dev/null | grep 'inet ' | awk '{print $2}' || echo "non-trouvée")
-if [ "$IP_HOTSPOT" != "non-trouvée" ]; then
+# Vérifier mode hotspot (bridge0) si une IP est réellement assignée
+IP_HOTSPOT=$(ifconfig bridge0 2>/dev/null | awk '/inet /{print $2; exit}')
+if [ -n "$IP_HOTSPOT" ]; then
     echo "✅ Mode HOTSPOT actif : $IP_HOTSPOT"
     echo "   URL tablettes hotspot : http://$IP_HOTSPOT:8081"
     echo "   SSID hotspot : LimeSurvey-Lab"
     IP_WIFI="$IP_HOTSPOT"
 else
     # Sinon, trouver IP WiFi normale du Mac
-    IP_WIFI=$(ipconfig getifaddr en0 2>/dev/null || echo "non-trouvée")
-    if [ "$IP_WIFI" != "non-trouvée" ]; then
+    IP_WIFI=$(ipconfig getifaddr en0 2>/dev/null || true)
+    if [ -n "$IP_WIFI" ]; then
         echo "✅ Mode WiFi normal : $IP_WIFI"
         echo "   URL tablettes WiFi : http://$IP_WIFI:8081"
     else
@@ -95,7 +95,7 @@ esac
 # Test connectivité réseau local
 echo ""
 echo "🌐 Test accessibilité depuis tablettes..."
-if [ "$IP_WIFI" != "non-trouvée" ]; then
+if [ -n "$IP_WIFI" ]; then
     if command -v nc >/dev/null 2>&1; then
         if echo "" | nc -w 1 $IP_WIFI 8081 2>/dev/null; then
             echo "✅ Port 8081 accessible depuis tablettes"
@@ -119,7 +119,7 @@ echo ""
 echo "🎯 URLs de test :"
 echo "   📱 Mac local    : $LIMESURVEY_URL"
 echo "   🔐 Admin        : $LIMESURVEY_URL/index.php/admin"
-if [ "$IP_WIFI" != "non-trouvée" ]; then
+if [ -n "$IP_WIFI" ]; then
     echo "   📲 Tablettes   : http://$IP_WIFI:8081"
 fi
 

@@ -9,6 +9,10 @@ BACKUP_DIR="./backups"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_NAME="limesurvey_backup_$TIMESTAMP"
 
+MYSQL_DATABASE="${MYSQL_DATABASE:-limesurvey}"
+MYSQL_USER="${MYSQL_USER:-limesurvey}"
+MYSQL_PASSWORD="${MYSQL_PASSWORD:-limepass}"
+
 echo "=========================================="
 echo "Backup LimeSurvey Lab - $TIMESTAMP"
 echo "=========================================="
@@ -25,7 +29,7 @@ fi
 mkdir -p "$BACKUP_DIR"
 
 echo "1/3 - Export de la base de donnees MySQL..."
-docker exec limesurvey-db mysqldump -u limesurvey -plimepass limesurvey > "$BACKUP_DIR/${BACKUP_NAME}_database.sql"
+docker exec limesurvey-db mysqldump -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_DIR/${BACKUP_NAME}_database.sql"
 echo "    -> $BACKUP_DIR/${BACKUP_NAME}_database.sql"
 
 echo ""

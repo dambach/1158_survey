@@ -50,6 +50,41 @@ Double-cliquez sur `LimeSurvey.exe` (a la racine du projet).
 
 ---
 
+## Variables d'environnement (optionnel)
+
+Par defaut, l'application utilise des identifiants internes simples. Vous pouvez les surcharger via des variables d'environnement **avant** de lancer l'app ou les scripts.
+
+Variables supportees:
+- `LISTEN_PORT` (defaut: `8080`) - port interne du conteneur LimeSurvey
+- `MYSQL_ROOT_PASSWORD` (defaut: `rootpass`)
+- `MYSQL_DATABASE` (defaut: `limesurvey`)
+- `MYSQL_USER` (defaut: `limesurvey`)
+- `MYSQL_PASSWORD` (defaut: `limepass`)
+- `ADMIN_USER` (defaut: `admin`)
+- `ADMIN_PASSWORD` (defaut: `admin123`)
+- `ADMIN_NAME` (defaut: `Admin`)
+- `ADMIN_EMAIL` (defaut: `admin@lab.local`)
+
+Exemples:
+
+macOS:
+```bash
+export ADMIN_PASSWORD="mon-mot-de-passe"
+export MYSQL_PASSWORD="mon-mysql-pass"
+./scripts/start-limesurvey.sh
+```
+
+Windows (cmd):
+```cmd
+set ADMIN_PASSWORD=mon-mot-de-passe
+set MYSQL_PASSWORD=mon-mysql-pass
+scripts\start-limesurvey.bat
+```
+
+> **Note:** L'acces externe reste sur `http://localhost:8081` (ou l'IP du PC/Mac), meme si `LISTEN_PORT` change.
+
+---
+
 ## Workflow complet
 
 ### Etape 1: Lancer l'application

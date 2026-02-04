@@ -13,6 +13,16 @@ if "%1"=="--fresh" (
     timeout /t 5 >nul
 )
 
+if "%LISTEN_PORT%"=="" set LISTEN_PORT=8080
+if "%MYSQL_ROOT_PASSWORD%"=="" set MYSQL_ROOT_PASSWORD=rootpass
+if "%MYSQL_DATABASE%"=="" set MYSQL_DATABASE=limesurvey
+if "%MYSQL_USER%"=="" set MYSQL_USER=limesurvey
+if "%MYSQL_PASSWORD%"=="" set MYSQL_PASSWORD=limepass
+if "%ADMIN_USER%"=="" set ADMIN_USER=admin
+if "%ADMIN_PASSWORD%"=="" set ADMIN_PASSWORD=admin123
+if "%ADMIN_NAME%"=="" set ADMIN_NAME=Administrator
+if "%ADMIN_EMAIL%"=="" set ADMIN_EMAIL=admin@example.com
+
 echo Demarrage LimeSurvey Lab...
 echo.
 
@@ -101,10 +111,10 @@ if %ERRORLEVEL% equ 0 (
         --name limesurvey-db ^
         --network limesurvey-net ^
         -v %MYSQL_VOLUME%:/var/lib/mysql ^
-        -e MYSQL_ROOT_PASSWORD=rootpass ^
-        -e MYSQL_DATABASE=limesurvey ^
-        -e MYSQL_USER=limesurvey ^
-        -e MYSQL_PASSWORD=limepass ^
+        -e "MYSQL_ROOT_PASSWORD=%MYSQL_ROOT_PASSWORD%" ^
+        -e "MYSQL_DATABASE=%MYSQL_DATABASE%" ^
+        -e "MYSQL_USER=%MYSQL_USER%" ^
+        -e "MYSQL_PASSWORD=%MYSQL_PASSWORD%" ^
         mysql:8.0
     
     echo Attente initialisation MySQL (30 secondes^)...
@@ -115,18 +125,19 @@ if %ERRORLEVEL% equ 0 (
     docker run -d ^
         --name limesurvey ^
         --network limesurvey-net ^
-        -p 8081:80 ^
+        -p 8081:%LISTEN_PORT% ^
         -v %LIMESURVEY_VOLUME%:/var/www/html/upload ^
+        -e "LISTEN_PORT=%LISTEN_PORT%" ^
         -e DB_TYPE=mysql ^
         -e DB_HOST=limesurvey-db ^
         -e DB_PORT=3306 ^
-        -e DB_NAME=limesurvey ^
-        -e DB_USERNAME=limesurvey ^
-        -e DB_PASSWORD=limepass ^
-        -e ADMIN_USER=admin ^
-        -e ADMIN_PASSWORD=admin123 ^
-        -e ADMIN_NAME=Administrator ^
-        -e ADMIN_EMAIL=admin@example.com ^
+        -e "DB_NAME=%MYSQL_DATABASE%" ^
+        -e "DB_USERNAME=%MYSQL_USER%" ^
+        -e "DB_PASSWORD=%MYSQL_PASSWORD%" ^
+        -e "ADMIN_USER=%ADMIN_USER%" ^
+        -e "ADMIN_PASSWORD=%ADMIN_PASSWORD%" ^
+        -e "ADMIN_NAME=%ADMIN_NAME%" ^
+        -e "ADMIN_EMAIL=%ADMIN_EMAIL%" ^
         martialblog/limesurvey:6-apache
     
     echo OK: Installation terminee
