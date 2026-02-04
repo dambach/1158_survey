@@ -38,12 +38,14 @@ echo [3/4] Compilation de l'application...
 REM Verifier si icon.ico existe, sinon utiliser une icone par defaut
 if exist "icon.ico" (
     set ICON_OPTION=--icon=icon.ico
+    set DATA_OPTION=--add-data=icon.ico;.
 ) else (
     echo    Note: icon.ico non trouve, icone par defaut utilisee
     set ICON_OPTION=
+    set DATA_OPTION=
 )
 
-pyinstaller --onefile --noconsole --name=LimeSurvey %ICON_OPTION% limesurvey_app.py
+pyinstaller --onefile --noconsole --name=LimeSurvey %ICON_OPTION% %DATA_OPTION% limesurvey_app.py
 if %ERRORLEVEL% neq 0 (
     echo ERREUR: Echec de la compilation
     exit /b 1
@@ -52,8 +54,11 @@ if %ERRORLEVEL% neq 0 (
 echo.
 echo [4/4] Deplacement de l'executable...
 
-REM Deplacer l'exe a la racine du projet
-move /y "dist\LimeSurvey.exe" "..\LimeSurvey.exe" >nul
+REM Creer le dossier dist a la racine si necessaire
+if not exist "..\dist" mkdir "..\dist"
+
+REM Deplacer l'exe vers dist/
+move /y "dist\LimeSurvey.exe" "..\dist\LimeSurvey.exe" >nul
 
 REM Nettoyage
 rmdir /s /q build 2>nul
@@ -65,11 +70,11 @@ echo ==========================================
 echo OK: Build termine avec succes!
 echo ==========================================
 echo.
-echo L'application a ete creee: LimeSurvey.exe (a la racine du projet)
+echo L'application a ete creee: dist\LimeSurvey.exe
 echo.
 echo Pour lancer l'application:
 echo    1. Ouvrir Docker Desktop
-echo    2. Double-cliquer sur LimeSurvey.exe
+echo    2. Double-cliquer sur dist\LimeSurvey.exe
 echo.
 
 exit /b 0

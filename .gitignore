@@ -47,6 +47,8 @@ app/icon.iconset/
 
 # Application compilee (regenerable)
 LimeSurvey.app/
+dist/
+LimeSurvey.exe
 
 # Documentation obsolete
 INSTALLATION_POC.md
