@@ -250,9 +250,19 @@ elif IS_WINDOWS:
             LimeSurveyAppBase.__init__(self)
             self.icon = None
         
+        def get_resource_path(self, relative_path):
+            """Obtenir le chemin d'une ressource, compatible avec PyInstaller"""
+            if getattr(sys, 'frozen', False):
+                # Mode compile: les ressources sont dans _MEIPASS
+                base_path = sys._MEIPASS
+            else:
+                # Mode dev: a cote du script
+                base_path = os.path.dirname(os.path.abspath(__file__))
+            return os.path.join(base_path, relative_path)
+        
         def create_icon(self):
             """Creer l'icone pour le system tray"""
-            icon_path = os.path.join(os.path.dirname(__file__), "icon.ico")
+            icon_path = self.get_resource_path("icon.ico")
             if os.path.exists(icon_path):
                 return Image.open(icon_path)
             else:
