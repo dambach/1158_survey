@@ -30,6 +30,10 @@ echo "ATTENTION: Cette operation va remplacer toutes les donnees actuelles!"
 echo "   Appuyez sur Ctrl+C dans 5 secondes pour annuler..."
 sleep 5
 
+MYSQL_DATABASE="${MYSQL_DATABASE:-limesurvey}"
+MYSQL_USER="${MYSQL_USER:-limesurvey}"
+MYSQL_PASSWORD="${MYSQL_PASSWORD:-limepass}"
+
 # Verifier que les conteneurs sont en cours d'execution
 if ! docker ps --format '{{.Names}}' | grep -q "^limesurvey-db$"; then
     echo "ERREUR: Le conteneur limesurvey-db n'est pas en cours d'execution"
@@ -56,7 +60,7 @@ echo "    -> Fichier SQL trouve: $(basename $SQL_FILE)"
 
 echo ""
 echo "2/3 - Restauration de la base de donnees..."
-docker exec -i limesurvey-db mysql -u limesurvey -plimepass limesurvey < "$SQL_FILE"
+docker exec -i limesurvey-db mysql -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" < "$SQL_FILE"
 echo "    -> Base de donnees restauree"
 
 echo ""
@@ -64,7 +68,11 @@ echo "3/3 - Restauration des fichiers uploades..."
 UPLOAD_DIR=$(find "$TEMP_DIR" -type d -name "*_uploads" | head -1)
 if [ ! -z "$UPLOAD_DIR" ] && [ -d "$UPLOAD_DIR" ]; then
     if docker ps --format '{{.Names}}' | grep -q "^limesurvey$"; then
-        docker cp "$UPLOAD_DIR/." limesurvey:/var/www/html/upload/
+        UPLOAD_SRC="$UPLOAD_DIR"
+        if [ -d "$UPLOAD_DIR/upload" ]; then
+            UPLOAD_SRC="$UPLOAD_DIR/upload"
+        fi
+        docker cp "$UPLOAD_SRC/." limesurvey:/var/www/html/upload/
         echo "    -> Fichiers uploades restaures"
     else
         echo "    -> (conteneur limesurvey non actif, fichiers non restaures)"

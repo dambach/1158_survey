@@ -13,6 +13,16 @@ if [ "$1" = "--fresh" ]; then
     sleep 5
 fi
 
+LISTEN_PORT="${LISTEN_PORT:-8080}"
+MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-rootpass}"
+MYSQL_DATABASE="${MYSQL_DATABASE:-limesurvey}"
+MYSQL_USER="${MYSQL_USER:-limesurvey}"
+MYSQL_PASSWORD="${MYSQL_PASSWORD:-limepass}"
+ADMIN_USER="${ADMIN_USER:-admin}"
+ADMIN_NAME="${ADMIN_NAME:-Admin}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@lab.local}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
+
 echo "Demarrage LimeSurvey Lab..."
 echo ""
 
@@ -107,10 +117,10 @@ else
       --network limesurvey-net \
       --restart unless-stopped \
       -v $MYSQL_VOLUME:/var/lib/mysql \
-      -e MYSQL_ROOT_PASSWORD=rootpass \
-      -e MYSQL_DATABASE=limesurvey \
-      -e MYSQL_USER=limesurvey \
-      -e MYSQL_PASSWORD=limepass \
+      -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+      -e MYSQL_DATABASE="$MYSQL_DATABASE" \
+      -e MYSQL_USER="$MYSQL_USER" \
+      -e MYSQL_PASSWORD="$MYSQL_PASSWORD" \
       mysql:8.0
     
     echo "Attente du demarrage de MySQL (30 secondes)..."
@@ -121,18 +131,19 @@ else
       --name limesurvey \
       --network limesurvey-net \
       --restart unless-stopped \
-      -p 8081:8080 \
+      -p 8081:$LISTEN_PORT \
       -v $LIMESURVEY_VOLUME:/var/www/html/upload \
+      -e LISTEN_PORT="$LISTEN_PORT" \
       -e DB_TYPE=mysql \
       -e DB_HOST=limesurvey-db \
       -e DB_PORT=3306 \
-      -e DB_NAME=limesurvey \
-      -e DB_USERNAME=limesurvey \
-      -e DB_PASSWORD=limepass \
-      -e ADMIN_USER=admin \
-      -e ADMIN_NAME=Admin \
-      -e ADMIN_EMAIL=admin@lab.local \
-      -e ADMIN_PASSWORD=admin123 \
+      -e DB_NAME="$MYSQL_DATABASE" \
+      -e DB_USERNAME="$MYSQL_USER" \
+      -e DB_PASSWORD="$MYSQL_PASSWORD" \
+      -e ADMIN_USER="$ADMIN_USER" \
+      -e ADMIN_NAME="$ADMIN_NAME" \
+      -e ADMIN_EMAIL="$ADMIN_EMAIL" \
+      -e ADMIN_PASSWORD="$ADMIN_PASSWORD" \
       martialblog/limesurvey:6-apache
     
     echo "Attente du demarrage de LimeSurvey (20 secondes)..."

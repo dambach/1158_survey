@@ -1,2 +1,15 @@
-rumps>=0.4.0
+# Dependencies cross-platform
+# macOS: rumps (menubar app)
+# Windows: pystray + Pillow (system tray app)
+# Les deux: plyer (notifications)
+
+# macOS only (ignored on Windows)
+rumps>=0.4.0; sys_platform == "darwin"
+
+# Windows only (ignored on macOS)
+pystray>=0.19.0; sys_platform == "win32"
+Pillow>=10.0.0; sys_platform == "win32"
+
+# Cross-platform
+plyer>=2.1.0
 pyinstaller>=6.0.0

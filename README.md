@@ -2,10 +2,14 @@
 
 Questionnaires sur tablettes en laboratoire avec hebergement local.
 
+**Compatible macOS et Windows**
+
 ## TODO
 - [ ] screenshots
 
-## Installation (nouveau Mac)
+---
+
+## Installation macOS
 
 ### 1. Prerequis
 - macOS 10.14+
@@ -26,17 +30,76 @@ Double-cliquez sur `LimeSurvey.app` (a la racine du projet).
 
 ---
 
+## Installation Windows
+
+### 1. Prerequis
+- Windows 10/11
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (activer WSL2 lors de l'installation)
+- [Python 3.10+](https://www.python.org/downloads/) (**Cocher "Add Python to PATH"** lors de l'installation)
+
+### 2. Cloner et compiler
+```cmd
+git clone https://github.com/dambach/1158_survey.git
+cd 1158_survey\app
+pip install -r requirements.txt
+build-app.bat
+```
+
+### 3. Lancer
+Double-cliquez sur `LimeSurvey.exe` (a la racine du projet).
+
+---
+
+## Variables d'environnement (optionnel)
+
+Par defaut, l'application utilise des identifiants internes simples. Vous pouvez les surcharger via des variables d'environnement **avant** de lancer l'app ou les scripts.
+
+Variables supportees:
+- `LISTEN_PORT` (defaut: `8080`) - port interne du conteneur LimeSurvey
+- `MYSQL_ROOT_PASSWORD` (defaut: `rootpass`)
+- `MYSQL_DATABASE` (defaut: `limesurvey`)
+- `MYSQL_USER` (defaut: `limesurvey`)
+- `MYSQL_PASSWORD` (defaut: `limepass`)
+- `ADMIN_USER` (defaut: `admin`)
+- `ADMIN_PASSWORD` (defaut: `admin123`)
+- `ADMIN_NAME` (defaut: `Admin`)
+- `ADMIN_EMAIL` (defaut: `admin@lab.local`)
+
+Exemples:
+
+macOS:
+```bash
+export ADMIN_PASSWORD="mon-mot-de-passe"
+export MYSQL_PASSWORD="mon-mysql-pass"
+./scripts/start-limesurvey.sh
+```
+
+Windows (cmd):
+```cmd
+set ADMIN_PASSWORD=mon-mot-de-passe
+set MYSQL_PASSWORD=mon-mysql-pass
+scripts\start-limesurvey.bat
+```
+
+> **Note:** L'acces externe reste sur `http://localhost:8081` (ou l'IP du PC/Mac), meme si `LISTEN_PORT` change.
+
+---
+
 ## Workflow complet
 
 ### Etape 1: Lancer l'application
 
-1. **Ouvrir Docker Desktop** (icone baleine dans la barre de menu)
-2. **Double-cliquer sur `LimeSurvey.app`** (a la racine du projet)
-3. L'icone **LS** apparait dans la barre de menu (en haut a droite)
+1. **Ouvrir Docker Desktop** (icone baleine)
+2. **Double-cliquer sur l'application:**
+   - **macOS:** `LimeSurvey.app`
+   - **Windows:** `LimeSurvey.exe`
+3. L'icone **LS** apparait:
+   - **macOS:** dans la barre de menu (en haut a droite)
+   - **Windows:** dans la zone de notification (en bas a droite)
 
 ### Etape 2: Demarrer le serveur
 
-1. Cliquer sur **LS** dans la barre de menu
+1. Cliquer sur l'icone **LS** (barre de menu macOS / zone de notification Windows)
 2. Cliquer sur **Demarrer**
 3. Attendre la notification "Serveur demarre!"
 4. Le navigateur s'ouvre automatiquement sur l'admin
@@ -66,14 +129,23 @@ Double-cliquez sur `LimeSurvey.app` (a la racine du projet).
 
 1. Dans l'admin, aller dans **Parametres** > **Vue d'ensemble**
 2. Copier l'**URL du questionnaire** (ex: `http://localhost:8081/index.php/123456?lang=fr`)
-3. **Remplacer `localhost` par l'IP du Mac** pour les tablettes:
-   - Trouver l'IP: **LS** > **Diagnostics** (ou `ipconfig getifaddr en0`)
+3. **Remplacer `localhost` par l'IP de l'ordinateur** pour les tablettes:
+   - Trouver l'IP: **LS** > **Diagnostics**
+   - Ou manuellement:
+     - **macOS:** `ipconfig getifaddr en0`
+     - **Windows:** `ipconfig` (chercher "Adresse IPv4")
    - URL tablettes: `http://192.168.1.XX:8081/index.php/123456?lang=fr`
 
 4. **Desactiver le pare-feu** (une seule fois):
-   ```bash
-   sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
-   ```
+   - **macOS:**
+     ```bash
+     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
+     ```
+   - **Windows** (en tant qu'administrateur):
+     ```cmd
+     netsh advfirewall set allprofiles state off
+     ```
+     Ou via: Panneau de configuration > Pare-feu Windows Defender > Desactiver
 
 ### Etape 5: Pendant la session
 
@@ -92,6 +164,28 @@ Double-cliquez sur `LimeSurvey.app` (a la racine du projet).
 Les fichiers sont dans:
 - `./exports/` - Fichiers CSV des reponses
 - `./backups/` - Sauvegardes completes
+
+---
+
+## Exporter / Importer un questionnaire (LimeSurvey)
+
+### Exporter
+Dans l'admin LimeSurvey: **Questionnaire** -> **Outils** -> **Exporter**.
+
+Formats courants:
+- **.LSS** : structure du questionnaire (groupes, questions, conditions). **Pas de reponses**.
+- **.LSA** : archive complete (structure + reponses + participants + timings).
+
+> **Note:** Les fichiers uploades ne sont pas inclus dans l'export (pour les questions "fichier").
+
+### Importer (charger)
+Dans l'admin LimeSurvey: **Creer un questionnaire** -> **Importer**.
+
+Formats acceptes:
+- **.LSS** (structure seule)
+- **.LSA** (archive complete)
+
+LimeSurvey cree un nouveau questionnaire et re-attribue les IDs automatiquement.
 
 ---
 
@@ -114,15 +208,16 @@ Les fichiers sont dans:
 
 | Type | URL |
 |------|-----|
-| Admin (Mac) | http://localhost:8081/admin |
-| Questionnaire (Mac) | http://localhost:8081/index.php/[ID]?lang=fr |
-| Questionnaire (tablettes) | http://[IP_MAC]:8081/index.php/[ID]?lang=fr |
+| Admin (local) | http://localhost:8081/admin |
+| Questionnaire (local) | http://localhost:8081/index.php/[ID]?lang=fr |
+| Questionnaire (tablettes) | http://[IP_ORDINATEUR]:8081/index.php/[ID]?lang=fr |
 | Login admin | `admin` / `admin123` |
 
 ---
 
 ## Alternative: Scripts Terminal
 
+### macOS
 ```bash
 ./scripts/start-limesurvey.sh
 ./scripts/export-csv.sh
@@ -130,15 +225,23 @@ Les fichiers sont dans:
 ./scripts/stop-limesurvey.sh
 ```
 
+### Windows
+```cmd
+scripts\start-limesurvey.bat
+scripts\export-csv.bat
+scripts\backup-data.bat
+scripts\stop-limesurvey.bat
+```
+
 | Script | Description |
 |--------|-------------|
-| `start-limesurvey.sh` | Demarre LimeSurvey |
-| `start-limesurvey.sh --fresh` | Reinitialise tout (⚠️ efface les donnees) |
-| `stop-limesurvey.sh` | Arrete les services |
-| `backup-data.sh` | Sauvegarde -> ./backups/ |
-| `export-csv.sh` | Export CSV -> ./exports/ |
-| `restore-data.sh <fichier>` | Restaure une sauvegarde |
-| `test-system.sh` | Diagnostic complet |
+| `start-limesurvey` | Demarre LimeSurvey |
+| `start-limesurvey --fresh` | Reinitialise tout (⚠️ efface les donnees) |
+| `stop-limesurvey` | Arrete les services |
+| `backup-data` | Sauvegarde -> ./backups/ |
+| `export-csv` | Export CSV -> ./exports/ |
+| `restore-data <fichier>` | Restaure une sauvegarde |
+| `test-system` | Diagnostic complet |
 
 ---
 
@@ -146,10 +249,10 @@ Les fichiers sont dans:
 
 | Probleme | Solution |
 |----------|----------|
-| Tablettes n'accedent pas | Desactiver pare-feu macOS (voir Etape 4) |
+| Tablettes n'accedent pas | Desactiver pare-feu (macOS ou Windows) |
 | Serveur inaccessible | `docker restart limesurvey` |
 | Docker ne demarre pas | Ouvrir Docker Desktop manuellement |
-| Reset complet | `./scripts/start-limesurvey.sh --fresh` (⚠️ efface tout) |
+| Reset complet | `start-limesurvey --fresh` (⚠️ efface tout) |
 
 ## Persistance des donnees
 
@@ -162,12 +265,16 @@ Les donnees sont stockees dans des volumes Docker et **survivent aux redemarrage
 ## Structure du projet
 
 ```
-LimeSurvey.app          # Application (generee par build-app.sh)
+LimeSurvey.app          # Application macOS (generee par build-app.sh)
+LimeSurvey.exe          # Application Windows (generee par build-app.bat)
 app/
-  limesurvey_app.py     # Code source de l'app
-  build-app.sh          # Script de compilation
-  icon.icns             # Icone
-scripts/                # Scripts shell
+  limesurvey_app.py     # Code source cross-platform (macOS/Windows)
+  build-app.sh          # Script de compilation macOS
+  build-app.bat         # Script de compilation Windows
+  icon.icns             # Icone macOS
+  icon.ico              # Icone Windows
+  requirements.txt      # Dependances Python
+scripts/                # Scripts shell (.sh) et batch (.bat)
 backups/                # Sauvegardes (gitignore)
 exports/                # Exports CSV (gitignore)
 ```
@@ -178,4 +285,4 @@ exports/                # Exports CSV (gitignore)
 - [LimeSurvey Docker](https://hub.docker.com/r/martialblog/limesurvey)
 
 ---
-v1.2
+v1.3 - Cross-platform macOS/Windows
