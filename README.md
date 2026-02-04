@@ -167,6 +167,28 @@ Les fichiers sont dans:
 
 ---
 
+## Exporter / Importer un questionnaire (LimeSurvey)
+
+### Exporter
+Dans l'admin LimeSurvey: **Questionnaire** -> **Outils** -> **Exporter**.
+
+Formats courants:
+- **.LSS** : structure du questionnaire (groupes, questions, conditions). **Pas de reponses**.
+- **.LSA** : archive complete (structure + reponses + participants + timings).
+
+> **Note:** Les fichiers uploades ne sont pas inclus dans l'export (pour les questions "fichier").
+
+### Importer (charger)
+Dans l'admin LimeSurvey: **Creer un questionnaire** -> **Importer**.
+
+Formats acceptes:
+- **.LSS** (structure seule)
+- **.LSA** (archive complete)
+
+LimeSurvey cree un nouveau questionnaire et re-attribue les IDs automatiquement.
+
+---
+
 ## Menus de l'application
 
 | Menu | Action |
