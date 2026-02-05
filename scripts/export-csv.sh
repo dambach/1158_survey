@@ -40,8 +40,11 @@ docker exec limesurvey-db mysql -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DAT
         rm -f "$tmp_file"
         
         if [ -s "$output_file" ]; then
-            lines=$(wc -l < "$output_file" | tr -d ' ')
-            echo "  -> $output_file ($((lines-1)) reponses)"
+            responses=$(docker exec limesurvey-db mysql -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -N -B -e "SELECT COUNT(*) FROM $table;" 2>/dev/null | tr -d '\r' | head -n 1)
+            if [[ -z "$responses" ]]; then
+                responses=0
+            fi
+            echo "  -> $output_file (${responses} reponses)"
         else
             rm -f "$output_file"
         fi

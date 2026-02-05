@@ -29,7 +29,7 @@ fi
 mkdir -p "$BACKUP_DIR"
 
 echo "1/3 - Export de la base de donnees MySQL..."
-docker exec limesurvey-db mysqldump -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_DIR/${BACKUP_NAME}_database.sql"
+docker exec limesurvey-db mysqldump --no-tablespaces -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_DIR/${BACKUP_NAME}_database.sql"
 echo "    -> $BACKUP_DIR/${BACKUP_NAME}_database.sql"
 
 echo ""

@@ -44,12 +44,15 @@ def main():
     input_path = sys.argv[1]
     output_path = sys.argv[2]
 
-    with open(input_path, "r", encoding="utf-8", errors="replace") as in_f, open(
-        output_path, "w", encoding="utf-8", newline=""
+    # Use UTF-8 BOM for best compatibility with Excel on Windows.
+    # - Reading with utf-8-sig strips an existing BOM from input (if any).
+    # - Writing with utf-8-sig always writes a single BOM to output.
+    with open(input_path, "r", encoding="utf-8-sig", errors="replace") as in_f, open(
+        output_path, "w", encoding="utf-8-sig", newline=""
     ) as out_f:
         writer = csv.writer(out_f)
         for line in in_f:
-            line = line.rstrip("\n")
+            line = line.rstrip("\r\n")
             if line == "":
                 writer.writerow([])
                 continue

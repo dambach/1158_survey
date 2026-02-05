@@ -35,8 +35,13 @@ if "%MYSQL_USER%"=="" set MYSQL_USER=limesurvey
 if "%MYSQL_PASSWORD%"=="" set MYSQL_PASSWORD=limepass
 
 REM Verifier que les conteneurs sont en cours d'execution
-docker ps --format "{{.Names}}" | findstr /x "limesurvey-db" >nul 2>&1
-if %ERRORLEVEL% neq 0 (
+set DB_RUNNING=false
+docker inspect -f "{{.State.Running}}" limesurvey-db > "%TEMP%\ls_db_state.txt" 2>nul
+if exist "%TEMP%\ls_db_state.txt" (
+    set /p DB_RUNNING=<"%TEMP%\ls_db_state.txt"
+    del "%TEMP%\ls_db_state.txt" >nul 2>nul
+)
+if /i not "%DB_RUNNING%"=="true" (
     echo ERREUR: Le conteneur limesurvey-db n'est pas en cours d'execution
     echo    Lancer d'abord: scripts\start-limesurvey.bat
     exit /b 1
@@ -59,8 +64,13 @@ if %ERRORLEVEL% equ 0 (
         set UPLOAD_SRC=!UPLOAD_DIR!
     )
     if defined UPLOAD_SRC (
-        docker ps --format "{{.Names}}" | findstr /x "limesurvey" >nul 2>&1
-        if !ERRORLEVEL! equ 0 (
+        set APP_RUNNING=false
+        docker inspect -f "{{.State.Running}}" limesurvey > "%TEMP%\ls_app_state.txt" 2>nul
+        if exist "%TEMP%\ls_app_state.txt" (
+            set /p APP_RUNNING=<"%TEMP%\ls_app_state.txt"
+            del "%TEMP%\ls_app_state.txt" >nul 2>nul
+        )
+        if /i "!APP_RUNNING!"=="true" (
             docker cp "!UPLOAD_SRC!\." limesurvey:/var/www/html/upload/ 2>nul
             if !ERRORLEVEL! equ 0 (
                 echo    -^> Fichiers uploades restaures
@@ -68,10 +78,10 @@ if %ERRORLEVEL% equ 0 (
                 echo    -^> ERREUR: Echec restauration fichiers uploades
             )
         ) else (
-            echo    -^> (conteneur limesurvey non actif, fichiers non restaures)
+            echo    -^> ^(conteneur limesurvey non actif, fichiers non restaures^)
         )
     ) else (
-        echo    -^> (pas de fichiers uploades dans ce backup)
+        echo    -^> ^(pas de fichiers uploades dans ce backup^)
     )
     echo.
     echo ==========================================
