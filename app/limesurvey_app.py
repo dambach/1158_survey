@@ -93,8 +93,30 @@ class LimeSurveyAppBase:
             # Developpement: script dans app/
             app_dir = os.path.dirname(os.path.abspath(__file__))
             self.project_dir = os.path.dirname(app_dir)
-        
+
+        self.project_dir = self._find_project_dir(self.project_dir)
         self.scripts_dir = os.path.join(self.project_dir, "scripts")
+
+    def _find_project_dir(self, start_dir):
+        """Trouver la racine du projet a partir d'un dossier de depart.
+
+        Sous Windows (PyInstaller), l'exe peut etre lance depuis ./dist.
+        On remonte donc quelques niveaux jusqu'a trouver ./scripts/start-limesurvey.*
+        """
+        marker = "start-limesurvey.bat" if IS_WINDOWS else "start-limesurvey.sh"
+        current_dir = start_dir
+
+        for _ in range(4):
+            scripts_dir = os.path.join(current_dir, "scripts")
+            if os.path.isfile(os.path.join(scripts_dir, marker)):
+                return current_dir
+
+            parent = os.path.dirname(current_dir)
+            if parent == current_dir:
+                break
+            current_dir = parent
+
+        return start_dir
     
     def get_script_name(self, base_name):
         """Retourne le nom du script selon l'OS (.sh ou .bat)"""
@@ -106,6 +128,14 @@ class LimeSurveyAppBase:
         """Execute un script shell (.sh) ou batch (.bat) selon l'OS"""
         script_name = self.get_script_name(script_name)
         script_path = os.path.join(self.scripts_dir, script_name)
+
+        if not os.path.isfile(script_path):
+            return False, (
+                "ERREUR: Script introuvable.\n\n"
+                f"Script attendu: {script_path}\n"
+                f"Dossier projet detecte: {self.project_dir}\n\n"
+                "Verifiez que l'application est dans le dossier du projet (au meme niveau que 'scripts')."
+            )
         
         try:
             if IS_WINDOWS:
@@ -137,6 +167,8 @@ class LimeSurveyAppBase:
             webbrowser.open("http://localhost:8081/admin")
         else:
             notify("LimeSurvey", "Echec du demarrage")
+            display_output = output[:1500] if len(output) > 1500 else output
+            show_alert("Demarrage LimeSurvey - erreur", display_output)
     
     def do_stop(self):
         """Arreter LimeSurvey (avec sauvegarde auto)"""
@@ -172,6 +204,8 @@ class LimeSurveyAppBase:
             open_folder(exports_dir)
         else:
             notify("LimeSurvey", "Echec de l'export")
+            display_output = output[:1500] if len(output) > 1500 else output
+            show_alert("Export CSV - erreur", display_output)
     
     def do_backup(self):
         """Sauvegarder les donnees"""
@@ -181,6 +215,8 @@ class LimeSurveyAppBase:
             notify("LimeSurvey", "Sauvegarde terminee!")
         else:
             notify("LimeSurvey", "Echec de la sauvegarde")
+            display_output = output[:1500] if len(output) > 1500 else output
+            show_alert("Sauvegarde - erreur", display_output)
     
     def do_diagnostics(self):
         """Afficher les diagnostics"""
