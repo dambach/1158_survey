@@ -1,11 +1,15 @@
 # LimeSurvey Lab
 
-Questionnaires sur tablettes en laboratoire avec hebergement local.
+Questionnaires sur tablettes en laboratoire, heberges localement sur le PC/Mac : acces tablettes via Wi-Fi/hotspot, donnees et exports restent sur le poste utilisé.
 
 **Compatible macOS et Windows**
 
 ## TODO
 - [ ] screenshots
+- [ ] tests terrains
+- [ ] machine unique toujours "On" ? laquelle ?
+- [ ] ajouter questionnaires generiques dans /questionnaires
+- [ ] backup auto (mettre dossiers /exports et /backups dans dossier synology ?)
 
 ---
 
