@@ -141,7 +141,7 @@ if /i "%ALL_RUNNING%"=="true" (
             mysql:8.0
         if errorlevel 1 (
             echo ERREUR: Echec demarrage MySQL
-            exit /b 1
+            exit /b 1 
         )
 
         echo Attente initialisation MySQL ^(30 secondes^)...
