@@ -13,6 +13,7 @@ if [ "$1" = "--fresh" ]; then
     sleep 5
 fi
 
+# Port interne du conteneur LimeSurvey (Docker). Le port d'acces sur l'hote est 8081 (mapping: -p 8081:$LISTEN_PORT).
 LISTEN_PORT="${LISTEN_PORT:-8080}"
 MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-rootpass}"
 MYSQL_DATABASE="${MYSQL_DATABASE:-limesurvey}"

@@ -14,7 +14,7 @@ Questionnaires sur tablettes en laboratoire avec hebergement local.
 ### 1. Prerequis
 - macOS 10.14+
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- Python 3 (inclus sur macOS)
+- Python 3 (si absent, installer via Homebrew ou python.org)
 
 ### 2. Cloner et compiler
 ```bash
@@ -55,6 +55,7 @@ Double-cliquez sur `LimeSurvey.exe` (a la racine du projet).
 Par defaut, l'application utilise des identifiants internes simples. Vous pouvez les surcharger via des variables d'environnement **avant** de lancer l'app ou les scripts.
 
 Variables supportees:
+- **Port d'acces (par defaut): `8081`** (PC + tablettes) - non configurable via variables d'environnement
 - `LISTEN_PORT` (defaut: `8080`) - port interne du conteneur LimeSurvey
 - `MYSQL_ROOT_PASSWORD` (defaut: `rootpass`)
 - `MYSQL_DATABASE` (defaut: `limesurvey`)
@@ -136,16 +137,31 @@ scripts\start-limesurvey.bat
      - **Windows:** `ipconfig` (chercher "Adresse IPv4")
    - URL tablettes: `http://192.168.1.XX:8081/index.php/123456?lang=fr`
 
-4. **Desactiver le pare-feu** (une seule fois):
-   - **macOS:**
-     ```bash
-     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
-     ```
-   - **Windows** (en tant qu'administrateur):
+4. **Si les tablettes n'accedent pas au serveur : verifier le pare-feu**
+
+   En general, **il n'est pas necessaire de desactiver le pare-feu**. Le symptome typique est: l'URL `http://[IP_ORDINATEUR]:8081` ne repond pas depuis la tablette, mais `http://localhost:8081` fonctionne sur l'ordinateur.
+
+   - **Windows (recommande): autoriser le port 8081** (en tant qu'administrateur):
      ```cmd
-     netsh advfirewall set allprofiles state off
+     netsh advfirewall firewall add rule name="LimeSurvey (8081)" dir=in action=allow protocol=TCP localport=8081
      ```
-     Ou via: Panneau de configuration > Pare-feu Windows Defender > Desactiver
+     Alternative GUI: Parametres Windows > Securite Windows > Pare-feu et protection du reseau > Autoriser une application.
+
+   - **macOS (recommande): autoriser Docker Desktop / connexions entrantes**
+     Si macOS affiche une demande d'autorisation pour Docker, acceptez-la. Sinon: Reglages Systemes > Reseau > Pare-feu > Options… (autoriser Docker Desktop).
+
+   - **Dernier recours (temporaire): desactiver le pare-feu**
+     - **macOS:**
+       ```bash
+       sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
+       ```
+     - **Windows** (en tant qu'administrateur):
+       ```cmd
+       netsh advfirewall set allprofiles state off
+       ```
+     Pensez a le reactiver apres la session:
+     - **macOS:** `sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on`
+     - **Windows:** `netsh advfirewall set allprofiles state on`
 
 ### Etape 5: Pendant la session
 
@@ -249,7 +265,7 @@ scripts\stop-limesurvey.bat
 
 | Probleme | Solution |
 |----------|----------|
-| Tablettes n'accedent pas | Desactiver pare-feu (macOS ou Windows) |
+| Tablettes n'accedent pas | Autoriser port `8081` (ou desactiver pare-feu en dernier recours) |
 | Serveur inaccessible | `docker restart limesurvey` |
 | Docker ne demarre pas | Ouvrir Docker Desktop manuellement |
 | Reset complet | `start-limesurvey --fresh` (⚠️ efface tout) |

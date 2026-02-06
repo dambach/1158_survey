@@ -13,6 +13,7 @@ if "%1"=="--fresh" (
     powershell -NoProfile -Command "Start-Sleep -Seconds 5" >nul 2>nul
 )
 
+REM LISTEN_PORT = port interne du conteneur Docker. Le port d'acces sur l'hote est 8081 (mapping: -p 8081:%LISTEN_PORT%).
 if "%LISTEN_PORT%"=="" set LISTEN_PORT=8080
 if "%MYSQL_ROOT_PASSWORD%"=="" set MYSQL_ROOT_PASSWORD=rootpass
 if "%MYSQL_DATABASE%"=="" set MYSQL_DATABASE=limesurvey
